@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Granja Roso Sanidade Command Center</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#06080c;--bg2:#0a0f18;--panel:#0f1724;--panel2:#131d2b;--card:#111827;
+  --line:#263548;--line2:#334155;--text:#e5e7eb;--muted:#94a3b8;
+  --green:#22c55e;--greenDark:#052e16;--red:#ef4444;--redDark:#450a0a;
+  --gold:#d6a24a;--gold2:#f1c27d;--blue:#38bdf8;--amber:#f59e0b;
+}
+body{
+  margin:0;font-family:Arial,Helvetica,sans-serif;
+  background:
+    radial-gradient(circle at top left,rgba(214,162,74,.18),transparent 32%),
+    radial-gradient(circle at top right,rgba(239,68,68,.10),transparent 28%),
+    linear-gradient(180deg,var(--bg),var(--bg2));
+  color:var(--text)
+}
+header{
+  background:linear-gradient(135deg,#05070b,#0f172a 45%,#2a1010);
+  border-bottom:1px solid var(--line);
+  padding:22px 16px;
+  box-shadow:0 20px 50px rgba(0,0,0,.45);
+}
+header:before{
+  content:"GR";width:54px;height:54px;border-radius:16px;
+  background:linear-gradient(135deg,var(--gold),#7c4a03);color:#101014;font-weight:900;
+  display:inline-flex;align-items:center;justify-content:center;margin-right:14px;
+  box-shadow:0 0 25px rgba(214,162,74,.35);vertical-align:middle;
+}
+h1{margin:0;color:#fff;font-size:26px;letter-spacing:.4px;display:inline-block;vertical-align:middle}
+header .small{display:block;margin-top:8px;margin-left:70px;color:var(--muted);font-size:13px}
+.wrap{max-width:1240px;margin:auto;padding:18px}
+.card{
+  background:linear-gradient(180deg,rgba(19,29,43,.97),rgba(13,20,31,.97));
+  border:1px solid var(--line);border-radius:18px;padding:17px;margin:14px 0;
+  box-shadow:0 18px 42px rgba(0,0,0,.34)
+}
+.card h2{margin:0 0 13px;font-size:18px;color:#fff;display:flex;align-items:center;gap:8px}
+.loteAtual{border:1px solid rgba(214,162,74,.65);box-shadow:0 0 0 1px rgba(214,162,74,.08),0 18px 42px rgba(0,0,0,.34)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px}
+label{display:block;margin-top:9px;font-size:12px;color:#cbd5e1;font-weight:bold;text-transform:uppercase;letter-spacing:.4px}
+input,select,textarea{
+  width:100%;padding:12px;border-radius:11px;border:1px solid #334155;
+  background:#070d16;color:#fff;margin-top:5px;outline:none
+}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(214,162,74,.14)}
+textarea{min-height:74px;resize:vertical}
+button{
+  border:0;border-radius:11px;padding:12px 15px;font-weight:bold;cursor:pointer;margin:6px 5px 0 0;
+  transition:.15s transform,.15s opacity
+}
+button:hover{transform:translateY(-1px);opacity:.95}
+.save{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff}
+.danger{background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff}
+.neutral{background:#334155;color:#fff}
+.report{background:linear-gradient(135deg,var(--gold),#a16207);color:#111827}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.box{
+  background:linear-gradient(180deg,rgba(30,41,59,.96),rgba(15,23,42,.96));
+  border:1px solid var(--line);border-radius:18px;padding:16px;position:relative;overflow:hidden;min-height:105px
+}
+.box:before{content:"";position:absolute;top:0;left:0;width:100%;height:4px;background:var(--gold)}
+.box:nth-child(2):before{background:var(--red)}
+.box:nth-child(3):before{background:var(--amber)}
+.box span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.75px;font-weight:bold}
+.box strong{display:block;font-size:24px;color:#fff;margin-top:9px}
+.box .small{margin-top:7px;line-height:1.35}
+.small{font-size:12px;color:var(--muted)}
+.ok{color:#86efac}.warn{color:#fde68a}
+table{
+  width:100%;border-collapse:collapse;margin-top:10px;font-size:14px;
+  background:#070d16;border-radius:14px;overflow:hidden;border:1px solid #1f2937
+}
+th,td{border-bottom:1px solid #1f2937;padding:11px;text-align:left;vertical-align:top}
+th{color:#cbd5e1;background:#0f172a;font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+tr:hover{background:#0f172a}
+.thumb{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid #475569;cursor:pointer}
+.preview{max-width:190px;max-height:190px;border-radius:12px;border:1px solid #475569;display:none;margin-top:8px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{background:#111827;color:#cbd5e1;border:1px solid #334155}
+.tab.active{background:linear-gradient(135deg,var(--gold),#a16207);color:#111827;border-color:var(--gold)}
+.card:nth-of-type(2):before,.card:nth-of-type(3):before,.card:nth-of-type(4):before{
+  display:block;text-transform:uppercase;letter-spacing:1px;color:var(--gold2);font-size:11px;font-weight:bold;margin-bottom:6px
+}
+.card:nth-of-type(2):before{content:"Integração de dados"}
+.card:nth-of-type(3):before{content:"Registro sanitário"}
+.card:nth-of-type(4):before{content:"Dashboard operacional"}
+@media(max-width:650px){table{font-size:12px}.thumb{width:55px;height:55px}.wrap{padding:12px}h1{font-size:22px}header .small{margin-left:0}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Sanidade Command Center - Granja Roso</h1>
+  <div class="small">Controle profissional de mortalidade por pavilhão, lote e evidência fotográfica</div>
+</header>
+
+<iframe name="envioOculto" id="envioOculto" style="display:none"></iframe>
+<form id="formEnvio" method="POST" target="envioOculto" style="display:none">
+  <input name="dados" id="campoDados">
+</form>
+
+<div class="wrap">
+
+  <div class="card loteAtual">
+    <h2>🚀 🚀 Operação de lote por pavilhão</h2>
+    <div class="small">Use quando carregar cada pavilhão. Cada pavilhão fica com lote, data e quantidade próprios.</div>
+    <div class="grid">
+      <div><label>Pavilhão</label><select id="novoPavilhao"><option>Pavilhão 1</option><option>Pavilhão 2</option><option>Pavilhão 3</option></select></div>
+      <div><label>Nome / número do lote</label><input id="novoLoteNome" placeholder="Ex: Lote 09"></div>
+      <div><label>Data de início / carregamento</label><input id="novoLoteData" type="date"></div>
+      <div><label>Quantidade de suínos alojados</label><input id="novoQtd" type="number" placeholder="Ex: 1200"></div>
+    </div>
+    <button class="report" onclick="iniciarNovoLotePavilhao()">Iniciar lote deste pavilhão</button>
+    <div id="infoLoteAtual" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card">
+    <h2>☁️ Banco de dados conectado</h2>
+    <div class="summary">
+      <div class="box"><span>Status</span><strong>Online</strong><div class="small ok">Planilha Google conectada</div></div>
+      <div class="box"><span>Backup</span><strong>Automático</strong><div class="small">Cada registro é enviado ao salvar</div></div>
+      <div class="box"><span>Dispositivos</span><strong>PC / Celular</strong><div class="small">Pode usar nos dois</div></div>
+    </div>
+    <input id="scriptUrl" type="hidden">
+    <button class="neutral" onclick="sincronizarPendentes()">Sincronizar pendentes</button>
+    <div class="small ok" id="statusSync">● Banco de dados configurado no sistema.</div>
+  </div>
+
+  <div class="card">
+    <h2>📌 Novo registro sanitário</h2>
+    <div class="grid">
+      <div><label>Data da morte</label><input id="data" type="date"></div>
+      <div><label>Pavilhão</label><select id="pavilhao"><option>Pavilhão 1</option><option>Pavilhão 2</option><option>Pavilhão 3</option></select></div>
+      <div><label>Baia / setor</label><input id="baia" placeholder="Ex: Baia 12"></div>
+      <div><label>Lote do pavilhão</label><input id="lote" readonly placeholder="Inicie o lote deste pavilhão"></div>
+      <div><label>Quantidade de mortos</label><input id="qtd" type="number" min="1" value="1"></div>
+      <div><label>Total de suínos neste pavilhão</label><input id="total" type="number" min="0" readonly></div>
+      <div><label>Causa provável</label><select id="causa"><option>Não identificado</option><option>Pneumonia / respiratório</option><option>Refugo / fraco</option><option>Briga / mordida</option><option>Problema de casco/perna</option><option>Diarréia</option><option>Morte súbita</option><option>Outro</option></select></div>
+      <div><label>Foto dos mortos (câmera ou galeria)</label><input id="foto" type="file" accept="image/*"><img id="preview" class="preview"></div>
+    </div>
+    <label>Observação</label>
+    <textarea id="obs" placeholder="Ex: animal encontrado de manhã, baia úmida, sintomas, medicamento usado..."></textarea>
+    <button class="save" onclick="salvar()">Salvar registro</button>
+    <button class="report" onclick="gerarRelatorio()">Gerar relatório com fotos</button>
+    <button class="neutral" onclick="exportarCSV()">Exportar CSV / Excel</button>
+    <button class="danger" onclick="apagarMortesPavilhao()">Apagar mortes do pavilhão selecionado</button>
+  </div>
+
+  <div class="card"><h2>📊 Indicadores dos pavilhões ativos</h2><div class="summary" id="resumo"></div></div>
+
+  <div class="card">
+    <h2>🔎 Filtro por pavilhão</h2>
+    <div class="tabs">
+      <button class="tab active" onclick="filtro='Todos';render();marcar(this)">Todos</button>
+      <button class="tab" onclick="filtro='Pavilhão 1';render();marcar(this)">Pavilhão 1</button>
+      <button class="tab" onclick="filtro='Pavilhão 2';render();marcar(this)">Pavilhão 2</button>
+      <button class="tab" onclick="filtro='Pavilhão 3';render();marcar(this)">Pavilhão 3</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📁 Registros sanitários ativos</h2>
+    <div style="overflow:auto">
+      <table>
+        <thead><tr><th>Data</th><th>Pavilhão</th><th>Baia</th><th>Lote</th><th>Mortos</th><th>Total</th><th>% Mortalidade</th><th>Causa</th><th>Foto</th><th>Obs.</th><th>Nuvem</th><th>Ação</th></tr></thead>
+        <tbody id="tabela"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📚 Histórico operacional de lotes finalizados</h2>
+    <div style="overflow:auto">
+      <table>
+        <thead><tr><th>Pavilhão</th><th>Lote</th><th>Início</th><th>Finalizado em</th><th>Alojados</th><th>Mortes</th><th>Mortalidade</th><th>Ação</th></tr></thead>
+        <tbody id="historicoLotes"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+let dados = JSON.parse(localStorage.getItem('mortalidadeSuinosGranjaRoso') || '[]');
+let lotesHistorico = JSON.parse(localStorage.getItem('lotesHistoricoMortalidade') || '[]');
+let lotesAtivos = JSON.parse(localStorage.getItem('lotesAtivosPorPavilhao') || '{}');
+let fotoBase64 = "";
+let filtro = "Todos";
+let scriptUrlPlanilha = "https://script.google.com/macros/s/AKfycbzIyG0xABL4KWdvL4JOUX7w3gO_DeUJmA5dGCWDxGXtEZlNZwEeO9w7RlPfT3RfwDtdXg/exec";
+
+data.valueAsDate = new Date();
+novoLoteData.valueAsDate = new Date();
+
+document.addEventListener('DOMContentLoaded', function(){
+  localStorage.setItem('scriptUrlPlanilhaMortalidade', "https://script.google.com/macros/s/AKfycbzIyG0xABL4KWdvL4JOUX7w3gO_DeUJmA5dGCWDxGXtEZlNZwEeO9w7RlPfT3RfwDtdXg/exec");
+  scriptUrlPlanilha = "https://script.google.com/macros/s/AKfycbzIyG0xABL4KWdvL4JOUX7w3gO_DeUJmA5dGCWDxGXtEZlNZwEeO9w7RlPfT3RfwDtdXg/exec";
+  if(document.getElementById('scriptUrl')) scriptUrl.value = scriptUrlPlanilha;
+  if(scriptUrlPlanilha) statusSync.innerHTML = '<span class="ok">Link configurado. Novos registros serão enviados para a Planilha Google.</span>';
+  atualizarCamposLote();
+});
+
+function salvarTudo(){
+  localStorage.setItem('mortalidadeSuinosGranjaRoso', JSON.stringify(dados));
+  localStorage.setItem('lotesAtivosPorPavilhao', JSON.stringify(lotesAtivos));
+  localStorage.setItem('lotesHistoricoMortalidade', JSON.stringify(lotesHistorico));
+}
+
+function salvarConfigPlanilha(){
+  scriptUrlPlanilha = scriptUrl.value.trim();
+  localStorage.setItem('scriptUrlPlanilhaMortalidade', scriptUrlPlanilha);
+  statusSync.innerHTML = scriptUrlPlanilha ? '<span class="ok">Link salvo. Próximos registros irão para a Planilha Google.</span>' : '<span class="warn">Sem link configurado.</span>';
+}
+
+function enviarParaPlanilha(item){
+  if(!scriptUrlPlanilha) return false;
+  try{
+    const form = document.getElementById('formEnvio');
+    form.action = scriptUrlPlanilha;
+    document.getElementById('campoDados').value = JSON.stringify(item);
+    form.submit();
+    return true;
+  }catch(e){
+    console.log(e);
+    return false;
+  }
+}
+
+function sincronizarPendentes(){
+  if(!scriptUrlPlanilha){ alert('Cole e salve primeiro a URL do App da Web terminada em /exec.'); return; }
+  let enviados=0;
+  dados.forEach(item=>{
+    if(!item.enviadoPlanilha){
+      const ok = enviarParaPlanilha(item);
+      if(ok){ item.enviadoPlanilha=true; enviados++; }
+    }
+  });
+  salvarTudo(); render();
+  alert('Pendentes enviados para a planilha: '+enviados+'. Aguarde alguns segundos e confira a Planilha Google.');
+}
+
+function mortesDoPavilhao(pav){ return dados.filter(x=>x.pavilhao===pav).reduce((a,b)=>a+Number(b.qtd||0),0); }
+function registrosDoPavilhao(pav){ return dados.filter(x=>x.pavilhao===pav); }
+
+function iniciarNovoLotePavilhao(){
+  const pav = novoPavilhao.value;
+  const nome = novoLoteNome.value.trim();
+  const dataInicio = novoLoteData.value;
+  const qtdAlojada = Number(novoQtd.value || 0);
+
+  if(!nome){ alert('Informe o nome ou número do lote.'); return; }
+  if(!dataInicio){ alert('Informe a data de início/carregamento.'); return; }
+  if(qtdAlojada <= 0){ alert('Informe a quantidade de suínos alojados neste pavilhão.'); return; }
+
+  if(lotesAtivos[pav]){
+    const regs = registrosDoPavilhao(pav);
+    const mortes = mortesDoPavilhao(pav);
+    if(confirm(`${pav} já tem um lote ativo. Deseja finalizar esse lote e iniciar outro?`)){
+      lotesHistorico.push({...lotesAtivos[pav], finalizadoEm:new Date().toISOString().slice(0,10), mortes, registros:regs});
+      dados = dados.filter(x=>x.pavilhao !== pav);
+    } else return;
+  }
+
+  lotesAtivos[pav] = {pavilhao:pav,nome,dataInicio,qtdAlojada};
+  salvarTudo();
+  novoLoteNome.value=""; novoQtd.value="";
+  atualizarCamposLote(); render();
+  alert(`Novo lote iniciado no ${pav}. Mortalidade deste pavilhão zerada.`);
+}
+
+function atualizarCamposLote(){
+  const pav = pavilhao.value;
+  const lotePav = lotesAtivos[pav];
+  if(lotePav){ lote.value = lotePav.nome; total.value = lotePav.qtdAlojada; }
+  else { lote.value = ""; total.value = ""; }
+
+  const pavs = ['Pavilhão 1','Pavilhão 2','Pavilhão 3'];
+  infoLoteAtual.innerHTML = '<div class="summary">' + pavs.map(p=>{
+    const l = lotesAtivos[p];
+    if(!l) return `<div class="box"><span>${p}</span><strong>Sem lote</strong><div class="small">Ainda não iniciado</div></div>`;
+    const mortes = mortesDoPavilhao(p);
+    const perc = l.qtdAlojada ? ((mortes/l.qtdAlojada)*100).toFixed(2)+'%' : '-';
+    return `<div class="box"><span>${p}</span><strong>${l.nome}</strong><div class="small">Início: ${l.dataInicio}<br>Alojados: ${l.qtdAlojada}<br>Mortes: ${mortes} (${perc})</div></div>`;
+  }).join('') + '</div>';
+}
+
+pavilhao.addEventListener('change', atualizarCamposLote);
+
+foto.addEventListener('change', function(e){
+  const file=e.target.files[0];
+  if(!file){fotoBase64="";return;}
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    const img=new Image();
+    img.onload=function(){
+      const canvas=document.createElement('canvas');
+      const max=500; let w=img.width,h=img.height;
+      if(w>h && w>max){h*=max/w;w=max}
+      if(h>=w && h>max){w*=max/h;h=max}
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      fotoBase64=canvas.toDataURL('image/jpeg',0.55);
+      preview.src=fotoBase64; preview.style.display='block';
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+function salvar(){
+  const pav = pavilhao.value;
+  const lotePav = lotesAtivos[pav];
+  if(!lotePav){ alert('Primeiro inicie o lote deste pavilhão.'); return; }
+
+  const item = {
+    data:data.value,pavilhao:pav,baia:baia.value.trim(),lote:lotePav.nome,loteInicio:lotePav.dataInicio,
+    qtd:Number(qtd.value||0),total:Number(lotePav.qtdAlojada||0),causa:causa.value,obs:obs.value.trim(),
+    foto:fotoBase64 ? "Foto anexada no app" : "", criadoEm:new Date().toISOString()
+  };
+  if(!item.data){ alert('Informe a data da morte.'); return; }
+  if(item.qtd<=0){ alert('Informe a quantidade de mortos.'); return; }
+
+  const ok = enviarParaPlanilha(item);
+  if(ok) item.enviadoPlanilha = true;
+
+  // Guardamos a foto no app para relatório local, mas enviamos para a planilha apenas indicação para não pesar/travar.
+  item.foto = fotoBase64;
+
+  dados.push(item); salvarTudo();
+
+  qtd.value=1; baia.value=""; obs.value=""; foto.value=""; fotoBase64=""; preview.src=""; preview.style.display="none";
+  render();
+  alert(ok ? 'Registro salvo e enviado para a Planilha Google.' : 'Registro salvo no celular. Configure o link da planilha para enviar.');
+}
+
+function taxa(qtd,total){ if(!total || total<=0) return "-"; return ((qtd/total)*100).toFixed(2)+"%"; }
+
+function resumoPavilhao(pav){
+  const lista = registrosDoPavilhao(pav);
+  const mortos = lista.reduce((a,b)=>a+Number(b.qtd||0),0);
+  const lotePav = lotesAtivos[pav];
+  const totalPav = lotePav ? Number(lotePav.qtdAlojada||0) : 0;
+  const perc = totalPav ? ((mortos/totalPav)*100).toFixed(2)+"%" : "-";
+  return {lista,mortos,totalPav,perc,lotePav};
+}
+
+function render(){
+  atualizarCamposLote();
+  let lista = filtro==="Todos" ? dados : dados.filter(x=>x.pavilhao===filtro);
+  let r1=resumoPavilhao('Pavilhão 1'), r2=resumoPavilhao('Pavilhão 2'), r3=resumoPavilhao('Pavilhão 3');
+  const totalAlojado = r1.totalPav+r2.totalPav+r3.totalPav;
+  const totalMortes = dados.reduce((a,b)=>a+Number(b.qtd||0),0);
+  const percGeral = totalAlojado ? ((totalMortes/totalAlojado)*100).toFixed(2)+"%" : "-";
+
+  resumo.innerHTML = `
+    <div class="box"><span>Total alojado ativo</span><strong>${totalAlojado||'-'}</strong></div>
+    <div class="box"><span>Mortes ativas</span><strong>${totalMortes}</strong></div>
+    <div class="box"><span>Mortalidade geral</span><strong>${percGeral}</strong></div>
+    <div class="box"><span>Pavilhão 1</span><strong>${r1.mortos}</strong><div class="small">${r1.lotePav?r1.lotePav.nome:'Sem lote'}<br>${r1.perc} de ${r1.totalPav||'-'}</div></div>
+    <div class="box"><span>Pavilhão 2</span><strong>${r2.mortos}</strong><div class="small">${r2.lotePav?r2.lotePav.nome:'Sem lote'}<br>${r2.perc} de ${r2.totalPav||'-'}</div></div>
+    <div class="box"><span>Pavilhão 3</span><strong>${r3.mortos}</strong><div class="small">${r3.lotePav?r3.lotePav.nome:'Sem lote'}<br>${r3.perc} de ${r3.totalPav||'-'}</div></div>
+  `;
+
+  tabela.innerHTML="";
+  lista.slice().reverse().forEach(x=>{
+    const realIndex=dados.indexOf(x);
+    const fotoHtml=x.foto?`<img class="thumb" src="${x.foto}" onclick="abrirFoto(${realIndex})">`:"-";
+    tabela.innerHTML += `<tr><td>${x.data||""}</td><td>${x.pavilhao||""}</td><td>${x.baia||""}</td><td>${x.lote||""}</td><td>${x.qtd||0}</td><td>${x.total||""}</td><td>${taxa(Number(x.qtd||0),Number(x.total||0))}</td><td>${x.causa||""}</td><td>${fotoHtml}</td><td>${x.obs||""}</td><td>${x.enviadoPlanilha?"✅":"📱"}</td><td><button class="danger" onclick="excluir(${realIndex})">Apagar</button></td></tr>`;
+  });
+
+  historicoLotes.innerHTML="";
+  lotesHistorico.slice().reverse().forEach(l=>{
+    const realIndex=lotesHistorico.indexOf(l);
+    historicoLotes.innerHTML += `<tr><td>${l.pavilhao}</td><td>${l.nome}</td><td>${l.dataInicio}</td><td>${l.finalizadoEm||""}</td><td>${l.qtdAlojada}</td><td>${l.mortes||0}</td><td>${taxa(Number(l.mortes||0),Number(l.qtdAlojada||0))}</td><td><button class="neutral" onclick="verLoteHistorico(${realIndex})">Ver relatório</button></td></tr>`;
+  });
+}
+
+function gerarRelatorio(){ gerarRelatorioComDados(dados, lotesAtivos, 'Relatório Mortalidade Suínos - Pavilhões Ativos'); }
+function verLoteHistorico(i){ const l=lotesHistorico[i]; const lotes={}; lotes[l.pavilhao]=l; gerarRelatorioComDados(l.registros||[], lotes, 'Relatório Mortalidade Suínos - '+l.pavilhao+' - '+l.nome); }
+
+function gerarRelatorioComDados(registros,lotesBase,titulo){
+  const hoje=new Date().toLocaleDateString('pt-BR');
+  const pavilhoes=['Pavilhão 1','Pavilhão 2','Pavilhão 3'];
+  let html=`<html><head><title>${titulo}</title><style>
+*{box-sizing:border-box}
+:root{
+  --bg:#06080c;--bg2:#0a0f18;--panel:#0f1724;--panel2:#131d2b;--card:#111827;
+  --line:#263548;--line2:#334155;--text:#e5e7eb;--muted:#94a3b8;
+  --green:#22c55e;--greenDark:#052e16;--red:#ef4444;--redDark:#450a0a;
+  --gold:#d6a24a;--gold2:#f1c27d;--blue:#38bdf8;--amber:#f59e0b;
+}
+body{
+  margin:0;font-family:Arial,Helvetica,sans-serif;
+  background:
+    radial-gradient(circle at top left,rgba(214,162,74,.18),transparent 32%),
+    radial-gradient(circle at top right,rgba(239,68,68,.10),transparent 28%),
+    linear-gradient(180deg,var(--bg),var(--bg2));
+  color:var(--text)
+}
+header{
+  background:linear-gradient(135deg,#05070b,#0f172a 45%,#2a1010);
+  border-bottom:1px solid var(--line);
+  padding:22px 16px;
+  box-shadow:0 20px 50px rgba(0,0,0,.45);
+}
+header:before{
+  content:"GR";width:54px;height:54px;border-radius:16px;
+  background:linear-gradient(135deg,var(--gold),#7c4a03);color:#101014;font-weight:900;
+  display:inline-flex;align-items:center;justify-content:center;margin-right:14px;
+  box-shadow:0 0 25px rgba(214,162,74,.35);vertical-align:middle;
+}
+h1{margin:0;color:#fff;font-size:26px;letter-spacing:.4px;display:inline-block;vertical-align:middle}
+header .small{display:block;margin-top:8px;margin-left:70px;color:var(--muted);font-size:13px}
+.wrap{max-width:1240px;margin:auto;padding:18px}
+.card{
+  background:linear-gradient(180deg,rgba(19,29,43,.97),rgba(13,20,31,.97));
+  border:1px solid var(--line);border-radius:18px;padding:17px;margin:14px 0;
+  box-shadow:0 18px 42px rgba(0,0,0,.34)
+}
+.card h2{margin:0 0 13px;font-size:18px;color:#fff;display:flex;align-items:center;gap:8px}
+.loteAtual{border:1px solid rgba(214,162,74,.65);box-shadow:0 0 0 1px rgba(214,162,74,.08),0 18px 42px rgba(0,0,0,.34)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px}
+label{display:block;margin-top:9px;font-size:12px;color:#cbd5e1;font-weight:bold;text-transform:uppercase;letter-spacing:.4px}
+input,select,textarea{
+  width:100%;padding:12px;border-radius:11px;border:1px solid #334155;
+  background:#070d16;color:#fff;margin-top:5px;outline:none
+}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(214,162,74,.14)}
+textarea{min-height:74px;resize:vertical}
+button{
+  border:0;border-radius:11px;padding:12px 15px;font-weight:bold;cursor:pointer;margin:6px 5px 0 0;
+  transition:.15s transform,.15s opacity
+}
+button:hover{transform:translateY(-1px);opacity:.95}
+.save{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff}
+.danger{background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff}
+.neutral{background:#334155;color:#fff}
+.report{background:linear-gradient(135deg,var(--gold),#a16207);color:#111827}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.box{
+  background:linear-gradient(180deg,rgba(30,41,59,.96),rgba(15,23,42,.96));
+  border:1px solid var(--line);border-radius:18px;padding:16px;position:relative;overflow:hidden;min-height:105px
+}
+.box:before{content:"";position:absolute;top:0;left:0;width:100%;height:4px;background:var(--gold)}
+.box:nth-child(2):before{background:var(--red)}
+.box:nth-child(3):before{background:var(--amber)}
+.box span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.75px;font-weight:bold}
+.box strong{display:block;font-size:24px;color:#fff;margin-top:9px}
+.box .small{margin-top:7px;line-height:1.35}
+.small{font-size:12px;color:var(--muted)}
+.ok{color:#86efac}.warn{color:#fde68a}
+table{
+  width:100%;border-collapse:collapse;margin-top:10px;font-size:14px;
+  background:#070d16;border-radius:14px;overflow:hidden;border:1px solid #1f2937
+}
+th,td{border-bottom:1px solid #1f2937;padding:11px;text-align:left;vertical-align:top}
+th{color:#cbd5e1;background:#0f172a;font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+tr:hover{background:#0f172a}
+.thumb{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid #475569;cursor:pointer}
+.preview{max-width:190px;max-height:190px;border-radius:12px;border:1px solid #475569;display:none;margin-top:8px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{background:#111827;color:#cbd5e1;border:1px solid #334155}
+.tab.active{background:linear-gradient(135deg,var(--gold),#a16207);color:#111827;border-color:var(--gold)}
+.card:nth-of-type(2):before,.card:nth-of-type(3):before,.card:nth-of-type(4):before{
+  display:block;text-transform:uppercase;letter-spacing:1px;color:var(--gold2);font-size:11px;font-weight:bold;margin-bottom:6px
+}
+.card:nth-of-type(2):before{content:"Integração de dados"}
+.card:nth-of-type(3):before{content:"Registro sanitário"}
+.card:nth-of-type(4):before{content:"Dashboard operacional"}
+@media(max-width:650px){table{font-size:12px}.thumb{width:55px;height:55px}.wrap{padding:12px}h1{font-size:22px}header .small{margin-left:0}}
+</style></head><body>
+  <button onclick="window.print()">Imprimir / Salvar em PDF</button><h1>${titulo} | Granja Roso</h1><p>Gerado em: ${hoje}</p>`;
+  pavilhoes.forEach((pav,pi)=>{
+    const l=lotesBase[pav], lista=registros.filter(x=>x.pavilhao===pav), mortos=lista.reduce((a,b)=>a+Number(b.qtd||0),0), totalPav=l?Number(l.qtdAlojada||0):0, perc=totalPav?((mortos/totalPav)*100).toFixed(2)+"%":"-";
+    if(pi>0) html+=`<div class="pagebreak"></div>`;
+    html+=`<h2>${pav}</h2><div class="box">Lote<br><b>${l?l.nome:'Sem lote ativo'}</b></div><div class="box">Início<br><b>${l?l.dataInicio:'-'}</b></div><div class="box">Alojados<br><b>${totalPav||'-'}</b></div><div class="box">Mortes<br><b>${mortos}</b></div><div class="box">Mortalidade<br><b>${perc}</b></div>
+    <table><thead><tr><th>Data</th><th>Baia</th><th>Lote</th><th>Mortos</th><th>Total</th><th>%</th><th>Causa</th><th>Observação</th><th>Foto</th></tr></thead><tbody>`;
+    if(lista.length===0) html+=`<tr><td colspan="9">Nenhum registro neste pavilhão.</td></tr>`;
+    else lista.forEach(x=>{html+=`<tr><td>${x.data||""}</td><td>${x.baia||""}</td><td>${x.lote||""}</td><td>${x.qtd||0}</td><td>${x.total||""}</td><td>${taxa(Number(x.qtd||0),Number(x.total||0))}</td><td>${x.causa||""}</td><td>${x.obs||""}</td><td>${x.foto?`<img src="${x.foto}">`:"-"}</td></tr>`});
+    html+=`</tbody></table><h3>Fotos do ${pav}</h3><div class="fotos">`;
+    const comFotos=lista.filter(x=>x.foto);
+    if(comFotos.length===0) html+=`<p>Sem fotos anexadas.</p>`;
+    comFotos.forEach(x=>{html+=`<div class="fotoCard"><img src="${x.foto}"><br><small>${x.data||""}<br>${x.baia||""}<br>${x.causa||""}</small></div>`});
+    html+=`</div>`;
+  });
+  html+=`</body></html>`;
+  const w=window.open(""); w.document.open(); w.document.write(html); w.document.close();
+}
+
+function excluir(i){ if(confirm('Apagar este registro?')){ dados.splice(i,1); salvarTudo(); render(); } }
+function apagarMortesPavilhao(){ const pav=pavilhao.value; if(confirm(`Apagar todas as mortes registradas do ${pav} no lote ativo?`)){ dados=dados.filter(x=>x.pavilhao!==pav); salvarTudo(); render(); } }
+function abrirFoto(i){ if(!dados[i].foto)return; const w=window.open(""); w.document.write(`<img src="${dados[i].foto}" style="max-width:100%;height:auto">`); }
+function exportarCSV(){
+  const linhas=[["Lote","Inicio lote","Data","Pavilhao","Baia","Mortos","Total pavilhao","Taxa mortalidade","Causa","Observacao","Tem foto"]];
+  dados.forEach(x=>linhas.push([x.lote,x.loteInicio,x.data,x.pavilhao,x.baia,x.qtd,x.total,taxa(Number(x.qtd||0),Number(x.total||0)),x.causa,x.obs,x.foto?"Sim":"Não"]));
+  const csv=linhas.map(l=>l.map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(";")).join("\n");
+  const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="mortalidade_suinos_pavilhoes_ativos_granja_roso.csv"; a.click();
+}
+function marcar(btn){document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}
+render();
+</script>
+</body>
+</html>
